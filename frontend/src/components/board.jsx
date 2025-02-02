@@ -72,7 +72,21 @@ export function Board() {
 		handleDeleteElement(elementId);
 	};
 
-	const printDebugElements = (elementId) => {
+	const paintRectangle = (element) => {
+		const updatedElement = {
+			id: element.id,
+			type: "rect",
+			x: element.x,
+			y: element.y,
+			width: 150,
+			height: 150,
+			fill: "blue",
+			isDragging: false,
+		};
+		handleUpdateElement(updatedElement);
+	};
+
+	const printDebugElements = () => {
 		socket.emit("debug-print-elements");
 	};
 
@@ -115,7 +129,16 @@ export function Board() {
 		<div>
 			<button onClick={addRectangle}>Add Rectangle</button>
 			<button onClick={() => deleteRectangle(elements[0]?.id)}>
-				Delete Rectangle{" "}
+				Delete Rectangle
+			</button>
+			<button
+				onClick={() =>
+					paintRectangle(
+						elements[Math.floor(Math.random() * elements.length)]
+					)
+				}
+			>
+				Paint Rectangle
 			</button>
 			<button onClick={() => printDebugElements()}>
 				Debug all Elements
