@@ -1,0 +1,19 @@
+2025-02-12T17:20:07.064397500 0.031721s notice: In recursion: removing file 'D:\\Studying Stuff\\diplom-app\\HSE-DSS\\rethink\\rethinkdb_data\\tmp'
+2025-02-12T17:20:07.065629400 0.032803s warn: Trying to delete non-existent file 'D:\\Studying Stuff\\diplom-app\\HSE-DSS\\rethink\\rethinkdb_data\\tmp'
+2025-02-12T17:20:07.068791000 0.035963s notice: Initializing directory D:\\Studying Stuff\\diplom-app\\HSE-DSS\\rethink\\rethinkdb_data
+2025-02-12T17:20:07.070300600 0.037474s info: Creating a default database for your convenience. (This is because you ran 'rethinkdb' without 'create', 'serve', or '--join', and the directory 'D:\\Studying Stuff\\diplom-app\\HSE-DSS\\rethink\\rethinkdb_data' did not already exist or is empty.)
+2025-02-12T17:20:07.070532600 0.037705s notice: Running rethinkdb 2.4.2-11-g6613dc (Windows) (MSC 191627048)...
+2025-02-12T17:20:07.070752500 0.037924s notice: Running on 10.0.19045 (Windows 10, Server 2016)
+2025-02-12T17:20:07.070920900 0.038093s notice: Loading data from directory D:\\Studying Stuff\\diplom-app\\HSE-DSS\\rethink\\rethinkdb_data
+2025-02-12T17:20:07.266309000 0.233481s info: Automatically using cache size of 1464 MB
+2025-02-12T17:20:07.274917200 0.242089s notice: Listening for intracluster connections on port 29015
+2025-02-12T17:20:07.287993000 0.255165s notice: Listening for client driver connections on port 28015
+2025-02-12T17:20:07.288099900 0.255272s notice: Listening for administrative HTTP connections on port 8080
+2025-02-12T17:20:07.288102100 0.255274s notice: Listening on cluster address: 127.0.0.1
+2025-02-12T17:20:07.288105700 0.255277s notice: Listening on driver address: 127.0.0.1
+2025-02-12T17:20:07.288107300 0.255279s notice: Listening on http address: 127.0.0.1
+2025-02-12T17:20:07.288109000 0.255281s notice: To fully expose RethinkDB on the network, bind to all addresses by running rethinkdb with the `--bind all` command line option.
+2025-02-12T17:20:07.288110700 0.255282s notice: Server ready, "LAPTOP_30G6K51E_9gm" fb972478-72e2-4966-a553-54df770bb07e
+2025-02-12T17:21:56.048954700 109.016127s info: Table 238dc226-4b92-4739-8d9c-2ff80966751f: Starting a new Raft election for term 1.
+2025-02-12T17:21:56.050875200 109.018047s info: Table 238dc226-4b92-4739-8d9c-2ff80966751f: Added replica on this server.
+2025-02-12T17:21:56.098702800 109.065875s info: Table 238dc226-4b92-4739-8d9c-2ff80966751f: This server is Raft leader for term 1. Latest log index is 0.
