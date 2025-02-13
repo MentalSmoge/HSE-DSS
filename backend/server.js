@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const path = require("path");
+const { Pool } = require("pg");
 const port = process.env.PORT || 8080;
 const app = express();
 app.use(cors());
@@ -11,6 +12,18 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 // Store whiteboard state in memory (replace with DB later)
 let elements = [];
+
+const pool = new Pool({
+	user: process.env.DB_USER,
+	host: process.env.DB_HOST || "user_db", // 'db' is the service name in docker-compose
+	database: process.env.DB_NAME,
+	password: process.env.DB_PASSWORD,
+	port: process.env.DB_PORT || 5432,
+});
+pool.query("SELECT NOW()", (err, res) => {
+	if (err) console.error("Database connection error:", err);
+	else console.log("Database connected:", res.rows[0]);
+});
 
 io.on("connection", (socket) => {
 	console.log("User connected:", socket.id);
