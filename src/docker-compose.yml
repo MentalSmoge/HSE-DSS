@@ -5,9 +5,25 @@ services:
         ports:
             - "3000:3000"
         depends_on:
-            - server
-            - user_db
-    server:
+            - websocket-server
+            - rethink_db
+    websocket-server:
+        container_name: websocket-container
+        build: backend/
+        depends_on:
+            - rethink_db
+        ports:
+            - "8081:8081"
+        environment:
+            - RETHINKDB_HOST=${RETHINKDB_HOST}
+            - RETHINKDB_PORT=${RETHINKDB_PORT}
+            - RETHINKDB_NAME=${RETHINKDB_NAME}
+        volumes:
+            - ./backend:/app_backend
+        networks:
+            - app-network
+    postgre-server:
+        container_name: postgre-container
         build: backend/
         depends_on:
             - user_db
@@ -23,6 +39,12 @@ services:
             - ./backend:/app_backend
         networks:
             - app-network
+    rethink_db:
+        image: rethinkdb:latest
+        ports:
+            - "28015:28015"
+        volumes:
+            - rethinkdb-data:/data
     user_db:
         image: postgres:17-alpine
         volumes:
@@ -61,6 +83,7 @@ services:
 volumes:
     postgres-data:
     pgadmin-data:
+    rethinkdb-data:
 networks:
     app-network:
         driver: bridge
