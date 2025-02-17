@@ -1,54 +1,38 @@
-import * as r from 'rethinkdb';
-import { Connection } from 'rethinkdb';
+import * as r from "rethinkdb";
+import { ElementRepository, Element } from "../domain/element";
 
-export class RethinkRepository {
-    private connection: Connection | undefined;
+const rethinkConfig = {
+    host: process.env.RETHINKDB_HOST || "localhost",
+    port: process.env.RETHINKDB_PORT ? Number(process.env.RETHINKDB_PORT) : 28015,
+    db: process.env.RETHINKDB_NAME || "rethink",
+    table: "elements",
+};
 
-    constructor(private config: {
-        host: string,
-        port: number,
-        db: string,
-        table: string
-    }) { }
+export class RethinkDBElementRepository implements ElementRepository {
+    constructor(private connection: r.Connection) { }
 
-    async connect() {
-        this.connection = await r.connect({
-            host: this.config.host,
-            port: this.config.port,
-            db: this.config.db
-        });
-    }
-
-    async initialize() {
-        const conn = await r.connect({ host: this.config.host, port: this.config.port });
-
-        // Create database if not exists
-        const dbList = await r.dbList().run(conn);
-        if (!dbList.includes(this.config.db)) {
-            await r.dbCreate(this.config.db).run(conn);
+    async initialize(): Promise<void> {
+        const dbList = await r.dbList().run(this.connection);
+        if (!dbList.includes(rethinkConfig.db)) {
+            await r.dbCreate(rethinkConfig.db).run(this.connection);
         }
 
-        // Create table if not exists
-        const tableList = await r.db(this.config.db).tableList().run(conn);
-        if (!tableList.includes(this.config.table)) {
-            await r.db(this.config.db).tableCreate(this.config.table).run(conn);
+        const tableList = await r.db(rethinkConfig.db).tableList().run(this.connection);
+        if (!tableList.includes(rethinkConfig.table)) {
+            await r.db(rethinkConfig.db).tableCreate(rethinkConfig.table).run(this.connection);
         }
-
-        await conn.close();
     }
 
-    async createUser(user: any) {
-        return r.table(this.config.table)
-            .insert(user)
-            .run(this.connection!);
+    async loadInitialState(): Promise<Element[]> {
+        const cursor = await r.db(rethinkConfig.db).table(rethinkConfig.table).run(this.connection);
+        return cursor.toArray() as Promise<Element[]>;
     }
 
-    watchUsers(callback: (err: Error | null, change?: any) => void) {
-        return r.table(this.config.table)
-            .changes()
-            .run(this.connection!)
-            .then(cursor => {
-                cursor.each((err, change) => callback(err, change));
-            });
+    async saveElement(element: Element): Promise<void> {
+        await r.db(rethinkConfig.db).table(rethinkConfig.table).insert(element, { conflict: "replace" }).run(this.connection);
+    }
+
+    async deleteElement(elementId: string): Promise<void> {
+        await r.db(rethinkConfig.db).table(rethinkConfig.table).get(elementId).delete().run(this.connection);
     }
 }
