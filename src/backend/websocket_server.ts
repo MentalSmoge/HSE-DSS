@@ -3,14 +3,19 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import * as r from "rethinkdb";
+import { PostgreSQLUserRepository, createPool } from './infrastructure/userdb_repository';
+import { UserService } from './application/user_service';
+import { createUserRouter } from './framework/routes';
 
-const port = process.env.PORT || 8081;
+const port = process.env.PORT || 8080;
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
+// Инициализация RethinkDB
 const rethinkConfig = {
     host: process.env.RETHINKDB_HOST || "localhost",
     port: process.env.RETHINKDB_PORT ? Number(process.env.RETHINKDB_PORT) : 28015,
@@ -34,6 +39,8 @@ async function initializeRethinkDB() {
         if (!tableList.includes(rethinkConfig.table)) {
             await r.db(rethinkConfig.db).tableCreate(rethinkConfig.table).run(rethinkConn);
         }
+        // Загрузка начального состояния при запуске сервера
+        loadInitialState();
 
         console.log("RethinkDB connected and initialized");
     } catch (err) {
@@ -75,6 +82,14 @@ async function deleteElement(elementId: string) {
         console.error("Failed to delete element from RethinkDB:", err);
     }
 }
+
+// Инициализация зависимостей для пользовательского сервиса
+const pool = createPool();
+const userRepository = new PostgreSQLUserRepository(pool);
+const userService = new UserService(userRepository);
+
+// Подключение роутов для пользовательского сервиса
+app.use('/api', createUserRouter(userService));
 
 // WebSocket соединения
 io.on("connection", (socket) => {
@@ -120,8 +135,6 @@ io.on("connection", (socket) => {
     });
 });
 
-// Загрузка начального состояния при запуске сервера
-loadInitialState();
 
 // Запуск сервера
 server.listen(port, () => console.log(`Server running on port ${port}`));

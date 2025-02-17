@@ -11,8 +11,7 @@
 	},
 	"scripts": {
 		"start:postgre": "ts-node ./postgre_server.ts",
-		"start:websocket": "ts-node ./websocket_server.ts",
-		"start": "npm-run-all --parallel start:postgre start:websocket"
+		"start": "ts-node ./websocket_server.ts"
 	},
 	"devDependencies": {
 		"@types/express": "^5.0.0",
