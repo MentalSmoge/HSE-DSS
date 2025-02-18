@@ -49,7 +49,6 @@ jobs:
       run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest .
 
     - name: Push to Docker Hub
-      if: github.ref == 'refs/heads/main'
       run: |
         echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest
