@@ -44,7 +44,7 @@ export class PostgreSQLUserRepository implements UserRepository {
 export function createPool(): InstanceType<typeof Pool> {
     return new Pool({
         user: process.env.DB_USER,
-        host: process.env.DB_HOST || "user_db", // 'db' is the service name in docker-compose
+        host: process.env.DB_HOST || "user_db",
         database: process.env.DB_NAME,
         password: process.env.DB_PASSWORD,
         port: parseInt(process.env.DB_PORT!),

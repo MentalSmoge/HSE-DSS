@@ -8,7 +8,7 @@ import { ElementService } from "./application/element_service";
 import { UserService } from "./application/user_service";
 import { createPool, PostgreSQLUserRepository } from "./infrastructure/userdb_repository";
 import { createUserRouter } from "./framework/routes";
-import { WebSocketController } from "./framework/websocket";
+import { WebSocketController } from "./framework/websocket_controller";
 
 const port = process.env.PORT || 8080;
 const app = express();
