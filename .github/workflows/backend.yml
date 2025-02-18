@@ -3,11 +3,11 @@ name: Backend CI/CD
 on:
   push:
     paths:
-      - 'backend/**'
+      - 'src/backend/**'
       - '.github/workflows/backend.yml'
   pull_request:
     paths:
-      - 'backend/**'
+      - 'src/backend/**'
 
 jobs:
   build-test-push:
@@ -36,15 +36,15 @@ jobs:
         cache: 'npm'
 
     - name: Install dependencies
-      working-directory: ./backend
+      working-directory: ./src/backend
       run: npm ci
 
     - name: Run unit tests
-      working-directory: ./backend
+      working-directory: ./src/backend
       run: npm test
 
     - name: Build Docker image
-      working-directory: ./backend
+      working-directory: ./src/backend
       run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend:latest .
 
     - name: Push to Docker Hub
