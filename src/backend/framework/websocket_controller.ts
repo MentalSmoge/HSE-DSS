@@ -1,6 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { Element } from "../domain/element";
-import { ElementService } from "../application/element_service";
+import { ElementService, ElementDTO } from "../application/element_service";
 
 export class WebSocketController {
     constructor(
@@ -18,13 +17,13 @@ export class WebSocketController {
             socket.emit("board-state", this.elementService.getElements());
 
             // Создание элемента
-            socket.on("element-create", async (element: Element) => {
+            socket.on("element-create", async (element: ElementDTO) => {
                 await this.elementService.createElement(element);
                 this.io.emit("element-created", element);
             });
 
             // Обновление элемента
-            socket.on("element-update", async (element: Element) => {
+            socket.on("element-update", async (element: ElementDTO) => {
                 await this.elementService.updateElement(element);
                 this.io.emit("element-updated", element);
             });
