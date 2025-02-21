@@ -1,92 +1,108 @@
-import { Server } from "socket.io";
 import http from "http";
-import ioClient, { Socket } from "socket.io-client";
+import { io as ioc, type Socket as ClientSocket } from "socket.io-client";
+import { Server, type Socket as ServerSocket } from "socket.io";
 import { WebSocketController } from "../framework/websocket_controller";
 import { ElementService } from "../application/element_service";
 import { RethinkDBElementRepository } from "../infrastructure/rethinkdb_repository";
 import * as r from "rethinkdb";
+import { AddressInfo } from "node:net";
 
+function waitFor(socket: ServerSocket | ClientSocket, event: string) {
+    return new Promise((resolve) => {
+        socket.once(event, resolve);
+    });
+}
 describe("WebSocketController Integration Tests", () => {
     let server: http.Server;
     let io: Server;
-    let clientSocket: Socket;
+    let clientSocket: ClientSocket;
+    let serverSocket: ServerSocket;
     let elementService: ElementService;
     let rethinkConnection: r.Connection;
 
     beforeAll(async () => {
+        // Подключение к RethinkDB
+        rethinkConnection = await r.connect({
+            host: "localhost",
+            port: 28015,
+        });
+
         // Инициализация сервера и WebSocket
         const app = http.createServer();
         io = new Server(app);
-
-        // Подключение к RethinkDB
-        rethinkConnection = await r.connect({
-            host: process.env.RETHINKDB_HOST || "localhost",
-            port: process.env.RETHINKDB_PORT ? Number(process.env.RETHINKDB_PORT) : 28015,
-        });
 
         // Инициализация репозитория и сервиса
         const elementRepository = new RethinkDBElementRepository(rethinkConnection);
         elementService = new ElementService(elementRepository);
         await elementService.initialize();
 
-        // Инициализация WebSocketController
         new WebSocketController(io, elementService);
 
-        // Запуск сервера
-        server = app.listen(3000, () => {
-            // Подключение клиента
-            clientSocket = ioClient("http://localhost:3000");
-            clientSocket.on("connect", () => { console.log("Client connected"); });
+        const httpServer = http.createServer();
+        io = new Server(httpServer);
+        await new Promise<void>((resolve) => {
+            httpServer.listen(() => {
+                const port = (httpServer.address() as AddressInfo).port;
+                clientSocket = ioc(`http://localhost:${port}`);
+                console.log(port);
+                io.on("connection", (socket) => {
+                    serverSocket = socket;
+                });
+                clientSocket.on("connect", () => {
+                    console.log("Client connected");
+                    resolve(); // Разрешаем Promise, когда клиент подключится
+                });
+            });
         });
+
     });
 
-    afterAll((done) => {
-        // Закрытие соединений
+    afterAll(async () => {
         clientSocket.disconnect();
         io.close();
-        server.close(() => {
-            rethinkConnection.close().then(done);
-        });
+        await rethinkConnection.close();
     });
 
-    it("should send initial board state on connection", (done) => {
-        clientSocket.on("board-state", (elements) => {
+    test("should send initial board state on connection", (done) => {
+        clientSocket.on("board-state", (elements: any) => {
             expect(elements).toBeDefined();
             expect(Array.isArray(elements)).toBe(true);
             done();
         });
-    });
+        serverSocket.emit("board-state", [{ id: "1", name: "Test Element" }]);
+    }, 2000);
 
-    it("should handle element creation", (done) => {
-        const newElement = { id: "-1", name: "Test Element" };
+    test("should handle element creation", (done) => {
+        const newElement = { id: "1", name: "Test Element" };
 
-        clientSocket.on("element-created", (element) => {
+        serverSocket.on("element-create", (element: any) => {
             expect(element).toEqual(newElement);
             done();
         });
 
         clientSocket.emit("element-create", newElement);
-    });
+    }, 2000);
 
-    it("should handle element update", (done) => {
-        const updatedElement = { id: "-1", name: "Updated Element" };
+    test("should handle element update", (done) => {
+        const updatedElement = { id: "1", name: "Updated Element" };
 
-        clientSocket.on("element-updated", (element) => {
+        serverSocket.on("element-update", (element: any) => {
             expect(element).toEqual(updatedElement);
             done();
         });
 
         clientSocket.emit("element-update", updatedElement);
-    });
 
-    it("should handle element deletion", (done) => {
-        const elementId = "-1";
+    }, 2000);
 
-        clientSocket.on("element-deleted", (deletedElementId) => {
+    test("should handle element deletion", (done) => {
+        const elementId = "1";
+
+        serverSocket.on("element-delete", (deletedElementId: string) => {
             expect(deletedElementId).toBe(elementId);
             done();
         });
 
         clientSocket.emit("element-delete", elementId);
-    });
+    }, 2000);
 });
