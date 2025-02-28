@@ -9,7 +9,7 @@ export function createUserRouter(userService: UserService) {
             const userDTO = await userService.createUser(req.body);
             res.status(201).json(userDTO);
         } catch (error) {
-            res.status(500).json({ error: 'Internal server error' });
+            res.status(500).json({ error: `${error}` });
         }
     });
 

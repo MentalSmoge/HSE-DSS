@@ -3,7 +3,7 @@ import { io as ioc, type Socket as ClientSocket } from "socket.io-client";
 import { Server, type Socket as ServerSocket } from "socket.io";
 import { WebSocketController } from "../framework/websocket_controller";
 import { ElementService } from "../application/element_service";
-import { RethinkDBElementRepository } from "../infrastructure/rethinkdb_repository";
+import { RethinkDBElementRepository } from "../infrastructure/elements_repository";
 import * as r from "rethinkdb";
 import { AddressInfo } from "node:net";
 
