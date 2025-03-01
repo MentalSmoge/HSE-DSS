@@ -1,15 +1,45 @@
 @startuml sas
+left to right direction
+legend top left
+    |Цвет| Приоритет |
+    |<#palegreen>| Must|
+    |<#Khaki>| Should |
+    |<#LightSkyBlue>| Could |
+    |<#LightCoral>| Won't |
+endlegend
 skinparam defaultFontSize 15
 actor Пользователь as user
-user -- (Создать проект)
-(Создать проект) <.. (Создать доску) : расширить
-user -- (Создать ссылку-приглашение в проект)
-(Создать ссылку-приглашение в проект) <.. (Отправить приглашение через Telegram) : расширить
-(Создать ссылку-приглашение в проект) <.. (Отправить приглашение внутри системы) : расширить
-user -up- (Редактировать содержимое доски)
-(Редактировать содержимое доски) <.up. (Группировать элементы доски) : расширить
-(Редактировать содержимое доски) <.up. (Отменять изменения) : расширить
-user -up- (Экспортировать данные)
-(Экспортировать данные) <.up. (Экспортировать в .doc документе) : расширить
-(Экспортировать данные) <.up. (Экспортировать в .md документе) : расширить
+actor Геймдизайнер as designer
+actor "Разработчик из команды" as developer
+usecase (Зайти в свой профиль) as login #palegreen
+usecase (Создать проект) as create_project #palegreen
+usecase (Создать доску) as create_board #palegreen
+usecase (Создать ссылку-приглашение в проект) as create_invitation #palegreen
+usecase (Отправить приглашение через Telegram) as send_via_telegram #LightCoral
+usecase (Отправить приглашение внутри системы) as send_via_system #LightSkyBlue
+usecase (Редактировать содержимое доски) as edit_board #palegreen
+usecase (Группировать элементы доски) as group_in_board #LightSkyBlue
+usecase (Отменять изменения) as rollback #Khaki
+usecase (Экспортировать данные\nв GDD) as export_gdd #palegreen
+usecase (Экспортировать в .doc документе) as export_as_doc #LightSkyBlue
+usecase (Экспортировать в .md документе) as export_as_md #palegreen
+usecase (Просматривать проект/доски по ссылке) as readonly #palegreen
+usecase (Оставить комментарий на доске в проекте) as comment #LightCoral
+developer -- comment
+designer -- comment
+designer --> user
+developer --> user
+designer -- create_project
+user -- login
+user -- readonly
+create_project <.. create_board : расширить
+designer -- create_invitation
+create_invitation <.. send_via_telegram : расширить
+create_invitation <.. send_via_system : расширить
+designer -- edit_board
+edit_board <.. group_in_board : расширить
+edit_board <.. rollback : расширить
+designer -- export_gdd
+export_gdd <-- export_as_doc 
+export_gdd <-- export_as_md
 @enduml
