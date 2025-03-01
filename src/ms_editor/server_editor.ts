@@ -7,7 +7,7 @@ import { RethinkDBElementRepository } from "./infrastructure/elements_repository
 import { ElementService } from "./application/element_service";
 import { WebSocketController } from "./framework/websocket_controller";
 
-const port = process.env.EDITOR_PORT || 8082;
+const port = process.env.EDITOR_PORT || 8080;
 const app = express();
 app.use(cors());
 app.use(express.json());

@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "amqplib": "^0.10.5",
+    "express": "^4.21.2",
+    "ts-node": "^10.9.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start:sender": "ts-node ./test_producer.ts",
+    "start:receive": "ts-node ./server_logs.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.6",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}
