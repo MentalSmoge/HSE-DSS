@@ -1,0 +1,40 @@
+@startuml
+interface ElementState {
+    +clicked(user): void
+    +edit(user): void
+    +clickedAway(user): void
+    +draw(): void
+}
+
+class DefaultState implements ElementState {
+    +clicked(user): void
+    +edit(user): void
+    +clickedAway(user): void
+    +draw(): void
+}
+
+class SelectedState implements ElementState {
+    +clicked(user): void
+    +edit(user): void
+    +clickedAway(user): void
+    +draw(): void
+}
+
+class EditingState implements ElementState {
+    +clicked(user): void
+    +edit(user): void
+    +clickedAway(user): void
+    +draw(): void
+}
+
+class Element {
+    -state: ElementState
+    +setState(state: ElementState): void
+    +clicked(user): void
+    +edit(user): void
+    +clickedAway(user): void
+    +draw(): void
+}
+
+Element --> ElementState
+@enduml

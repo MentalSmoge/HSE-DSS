@@ -1,0 +1,16 @@
+@startuml
+interface Graphic {
+    +draw(): void
+}
+
+abstract class GraphicDecorator {
+    -graphic: Graphic
+    +draw(): void
+} 
+
+class BorderDecorator extends GraphicDecorator {
+    -borderColor: string
+    +draw(): void
+}
+GraphicDecorator --> Graphic : wraps
+@enduml

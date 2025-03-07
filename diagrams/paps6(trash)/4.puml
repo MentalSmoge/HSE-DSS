@@ -1,0 +1,28 @@
+@startuml
+interface Element {
+    + draw(): void
+    + move(x: number, y: number): void
+}
+
+class Rect implements Element {
+    + draw(): void
+    + move(x: number, y: number): void
+}
+
+class Circle implements Element {
+    + draw(): void
+    + move(x: number, y: number): void
+}
+
+class Group implements Element {
+    - children: Element[]
+    + add(child: Element): void
+    + remove(child: Element): void
+    + draw(): void
+    + move(x: number, y: number): void
+}
+
+
+
+
+@enduml

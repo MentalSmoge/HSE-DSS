@@ -1,0 +1,25 @@
+@startuml
+class ElementFactory {
+    + static createElement(type: string): Element
+}
+
+interface Element {
+    + draw(): void
+}
+
+class Rect implements Element {
+    + draw(): void
+}
+
+class Circle implements Element {
+    + draw(): void
+}
+
+ElementFactory --> Element : creates
+
+
+note right of Element::draw
+    Каждый элемент реализует метод draw()
+    по-своему.
+end note
+@enduml

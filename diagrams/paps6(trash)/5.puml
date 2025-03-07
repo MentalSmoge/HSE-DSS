@@ -1,0 +1,31 @@
+@startuml
+class ApiGatewayFacade {
+    +login(username: string, password: string): Promise<string>
+    +getUserProfile(userId: string): Promise<any>
+    +sendNotification(userId: string, message: string): Promise<void>
+}
+
+class AuthService {
+    +login(username: string, password: string): Promise<string>
+}
+
+class UserService {
+    +getProfile(userId: string): Promise<any>
+}
+
+class NotificationService {
+    +sendNotification(userId: string, message: string): Promise<void>
+}
+
+ApiGatewayFacade --> AuthService : uses
+ApiGatewayFacade --> UserService : uses
+ApiGatewayFacade --> NotificationService : uses
+
+class Router {
+    +POST /login
+    +GET /user
+    +POST /notification
+}
+
+Router --> ApiGatewayFacade 
+@enduml

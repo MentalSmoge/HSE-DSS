@@ -1,0 +1,26 @@
+@startuml
+interface Handler {
+    +setNext(handler: Handler): Handler
+    +handle(request: any): void
+}
+
+abstract class AbstractHandler implements Handler {
+    -nextHandler: Handler
+    +setNext(handler: Handler): Handler
+    +handle(request: any): void
+}
+
+class ElementClickHandler extends AbstractHandler {
+    +handle(request: any): void
+}
+
+class GroupClickHandler extends AbstractHandler {
+    +handle(request: any): void
+}
+
+class BackgroundClickHandler extends AbstractHandler {
+    +handle(request: any): void
+}
+
+
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+interface RenderStrategy {
+    +render(element: any): void
+}
+
+class DesktopRenderStrategy implements RenderStrategy {
+    +render(element: any): void
+}
+
+class MobileRenderStrategy implements RenderStrategy {
+    +render(element: any): void
+}
+
+class ElementRenderer {
+    -strategy: RenderStrategy
+    +setStrategy(strategy: RenderStrategy): void
+    +render(element: any): void
+}
+
+ElementRenderer --> RenderStrategy : uses strategy
+@enduml

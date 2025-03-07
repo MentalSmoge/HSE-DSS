@@ -1,0 +1,20 @@
+@startuml
+class WebSocketController {
+    -io: Server
+    -elementService: ElementService
+    -setupHandlers(): void
+    +on(event: string, callback: function): void
+    +emit(event: string, data: any): void
+
+}
+
+class Board {
+    +on(event: string, callback: function): void
+    +emit(event: string, data: any): void
+}
+
+
+
+WebSocketController --> Board : notify other\nconnected boards
+WebSocketController <-- Board : notify about changes
+@enduml

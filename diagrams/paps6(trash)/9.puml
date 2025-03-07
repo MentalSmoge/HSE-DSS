@@ -1,0 +1,31 @@
+@startuml
+interface Command {
+    +execute(): Promise<void>
+    +undo(): Promise<void>
+}
+
+class CreateElementCommand implements Command {
+    -element: Element
+    -repository: RethinkDBElementRepository
+    +execute(): Promise<void>
+    +undo(): Promise<void>
+}
+
+class CommandManager {
+    -history: Command[]
+    +executeCommand(command: Command): Promise<void>
+    +undoLastCommand(): Promise<void>
+}
+
+class RethinkDBElementRepository {
+    +saveElement(element: Element): Promise<void>
+    +deleteElement(elementId: string): Promise<void>
+}
+
+class Element {
+    +id: string
+}
+CommandManager --> Command : manages
+CreateElementCommand --> RethinkDBElementRepository : uses
+CreateElementCommand --> Element : operates on
+@enduml

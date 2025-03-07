@@ -1,0 +1,22 @@
+@startuml
+
+    class Element {
+        + id: string
+        + x: number
+        + y: number
+        + fill: string
+        + height: number
+        + width: number
+        + draggable: boolean
+        + shadowColor: string
+        + shadowBlur: number
+        + shadowOpacity: number
+        + shadowOffsetX: number
+        + shadowOffsetY: number
+        + scaleX: number
+        + scaleY: number
+        + onDragStart: () => void
+        + onDragEnd: () => void
+    }
+
+@enduml

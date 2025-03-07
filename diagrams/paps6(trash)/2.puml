@@ -1,0 +1,15 @@
+@startuml
+class RethinkDBElementRepository {
+    - static instance: RethinkDBElementRepository
+    - connection: r.Connection
+
+    - RethinkDBElementRepository(connection: r.Connection)
+    + static getInstance(): Promise<RethinkDBElementRepository>
+    + initialize(): Promise<void>
+    + loadInitialState(): Promise<Element[]>
+    + saveElement(element: Element): Promise<void>
+    + deleteElement(elementId: string): Promise<void>
+}
+
+
+@enduml

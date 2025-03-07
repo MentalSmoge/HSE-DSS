@@ -1,0 +1,19 @@
+@startuml
+interface Graphic {
+    +draw(): void
+}
+
+class Image implements Graphic {
+    -filename: string
+    -loadImage(): void
+    +draw(): void
+}
+
+class ImageProxy implements Graphic {
+    -realImage: Image | null
+    -filename: string
+    +draw(): void
+}
+
+ImageProxy --> Image : loads on demand
+@enduml
