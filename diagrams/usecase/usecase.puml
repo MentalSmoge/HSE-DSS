@@ -42,6 +42,6 @@ edit_board <.. group_in_board : расширить
 edit_board <.. rollback : расширить
 edit_board <.. crud_elements : расширить
 designer -- export_gdd
-export_gdd <-- export_as_doc 
-export_gdd <-- export_as_md
+export_gdd ..> export_as_doc : включает
+export_gdd ..> export_as_md : включает
 @enduml
