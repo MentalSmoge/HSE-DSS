@@ -16,28 +16,32 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 async function startEditorServer() {
-    // Инициализация RethinkDB
-    const rethinkConnection = await r.connect({
-        host: process.env.RETHINKDB_HOST || "localhost",
-        port: process.env.RETHINKDB_PORT ? Number(process.env.RETHINKDB_PORT) : 28015,
-    });
+	// Инициализация RethinkDB
+	const rethinkConnection = await r.connect({
+		host: process.env.RETHINKDB_HOST || "localhost",
+		port: process.env.RETHINKDB_PORT
+			? Number(process.env.RETHINKDB_PORT)
+			: 28015,
+	});
 
-    // Репозитории
-    const elementRepository = new RethinkDBElementRepository(rethinkConnection);
+	// Репозитории
+	const elementRepository = new RethinkDBElementRepository(rethinkConnection);
 
-    // Сервисы
-    const elementService = new ElementService(elementRepository);
+	// Сервисы
+	const elementService = new ElementService(elementRepository);
 
-    // Инициализация сервисов
-    await elementService.initialize();
+	// Инициализация сервисов
+	await elementService.initialize();
 
-    // WebSocket
-    new WebSocketController(io, elementService);
+	// WebSocket
+	new WebSocketController(io, elementService);
 
-    // Запуск сервера
-    server.listen(port, () => console.log(`Editor server running on port ${port}`));
+	// Запуск сервера
+	server.listen(port, () =>
+		console.log(`Editor server running on port ${port}`)
+	);
 }
 
 startEditorServer().catch((err) => {
-    console.error("Failed to start editor server:", err);
+	console.error("Failed to start editor server:", err);
 });

@@ -5,10 +5,10 @@ services:
         ports:
             - "3000:3000"
         depends_on:
-            - websocket-server
+            - editor_service
             - rethink_db
-    websocket-server:
-        container_name: websocket-container
+    editor_service:
+        container_name: editor_service
         build: ms_editor/
         depends_on:
             - rethink_db
@@ -26,6 +26,15 @@ services:
             - DB_PORT=5432
         volumes:
             - ./ms_editor:/app_backend
+        networks:
+            - app-network
+    logs_service:
+        container_name: logs_service
+        build: ms_logs/
+        depends_on:
+            - editor_service
+        volumes:
+            - ./ms_logs:/app_backend
         networks:
             - app-network
 
@@ -70,6 +79,40 @@ services:
                 limits:
                     cpus: "0.5"
                     memory: 1G
+        networks:
+            - app-network
+    zookeeper:
+        image: confluentinc/cp-zookeeper:latest
+        environment:
+            ZOOKEEPER_CLIENT_PORT: 2181
+        ports:
+            - "2181:2181"
+        networks:
+            - app-network
+
+    kafka:
+        image: confluentinc/cp-kafka:latest
+        hostname: kafka
+        depends_on:
+            - zookeeper
+        environment:
+            KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        ports:
+            - "9092:9092"
+        networks:
+            - app-network
+    kafka-ui:
+        image: provectuslabs/kafka-ui:latest
+        depends_on:
+            - kafka
+        ports:
+            - "8080:8080"
+        environment:
+            KAFKA_CLUSTERS_0_NAME: local
+            KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+            KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
         networks:
             - app-network
 
