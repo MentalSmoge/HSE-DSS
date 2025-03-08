@@ -82,7 +82,8 @@ services:
         networks:
             - app-network
     zookeeper:
-        image: confluentinc/cp-zookeeper:latest
+        container_name: zookeeper
+        image: zookeeper:latest
         environment:
             ZOOKEEPER_CLIENT_PORT: 2181
         ports:
@@ -91,7 +92,8 @@ services:
             - app-network
 
     kafka:
-        image: confluentinc/cp-kafka:latest
+        container_name: kafka
+        image: bitnami/kafka:latest
         hostname: kafka
         depends_on:
             - zookeeper
@@ -104,6 +106,7 @@ services:
         networks:
             - app-network
     kafka-ui:
+        container_name: kafka-ui
         image: provectuslabs/kafka-ui:latest
         depends_on:
             - kafka
@@ -115,11 +118,55 @@ services:
             KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
         networks:
             - app-network
+    etcd:
+        container_name: etcd
+        image: bitnami/etcd:latest
+        volumes:
+            - etcd_data:/bitnami/etcd
+        environment:
+            ETCD_ENABLE_V2: "true"
+            ALLOW_NONE_AUTHENTICATION: "yes"
+            ETCD_ADVERTISE_CLIENT_URLS: "http://etcd:2379"
+            ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+        ports:
+            - "2379:2379"
+        networks:
+            - app-network
 
+    apisix:
+        container_name: apisix
+        image: apache/apisix:latest
+        ports:
+            - "9080:9080"
+            - "9443:9443"
+        restart: always
+        volumes:
+            - ./apisix_conf/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+        depends_on:
+            - etcd
+        networks:
+            - app-network
+
+    apisix-dashboard:
+        container_name: apisix-dashboard
+        image: apache/apisix-dashboard:latest
+        volumes:
+            - ./dashboard_conf/conf.yaml:/usr/local/apisix-dashboard/conf/conf.yaml
+        ports:
+            - "9000:9000"
+        environment:
+            - APISIX_DASHBOARD_LISTEN=0.0.0.0:9000
+            - APISIX_DASHBOARD_ETCD_ENDPOINTS=http://etcd:2379
+        depends_on:
+            - etcd
+            - apisix
+        networks:
+            - app-network
 volumes:
     postgres-data:
     pgadmin-data:
     rethinkdb-data:
+    etcd_data:
 networks:
     app-network:
         driver: bridge

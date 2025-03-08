@@ -10,6 +10,10 @@ export class WebSocketController {
 	private setupHandlers(): void {
 		this.io.on("connection", (socket: Socket) => {
 			console.log("User connected:", socket.id);
+			sendBoardUpdate({
+				type: "USER_CONNECTED",
+				payload: socket.id,
+			});
 
 			// Отправка текущего состояния
 			socket.emit("board-state", this.elementService.getElements());
@@ -29,16 +33,28 @@ export class WebSocketController {
 			socket.on("element-update", async (element: ElementDTO) => {
 				await this.elementService.updateElement(element);
 				this.io.emit("element-updated", element);
+				sendBoardUpdate({
+					type: "ELEMENT_UPDATED",
+					payload: element,
+				});
 			});
 
 			// Удаление элемента
 			socket.on("element-delete", async (elementId: string) => {
 				await this.elementService.deleteElement(elementId);
 				this.io.emit("element-deleted", elementId);
+				sendBoardUpdate({
+					type: "ELEMENT_DELETED",
+					payload: elementId,
+				});
 			});
 
 			socket.on("disconnect", () => {
 				console.log("User disconnected:", socket.id);
+				sendBoardUpdate({
+					type: "USER_DISCONNECTED",
+					payload: socket.id,
+				});
 			});
 		});
 	}
