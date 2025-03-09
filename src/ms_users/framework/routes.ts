@@ -1,4 +1,4 @@
-import express from "express";
+import * as express from "express";
 import { UserService } from "../application/user_service";
 
 export function createUserRouter(userService: UserService) {
