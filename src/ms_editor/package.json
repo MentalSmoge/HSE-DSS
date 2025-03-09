@@ -21,6 +21,7 @@
 	"devDependencies": {
 		"@types/express": "^5.0.0",
 		"@types/jest": "^29.5.14",
+		"@types/kafkajs": "^1.8.2",
 		"@types/pg": "^8.11.11",
 		"@types/rethinkdb": "^2.3.21",
 		"jest": "^29.7.0",

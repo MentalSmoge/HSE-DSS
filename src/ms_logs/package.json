@@ -14,6 +14,7 @@
 		"test:coverage": "jest --coverage"
 	},
 	"devDependencies": {
+		"@types/kafkajs": "^1.8.2",
 		"typescript": "^5.8.2"
 	}
 }
