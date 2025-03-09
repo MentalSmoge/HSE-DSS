@@ -37,6 +37,7 @@ export class PostgreSQLUserRepository implements UserRepository {
 		const result = await this.pool.query(
 			'SELECT id, name, email FROM users'
 		);
+		sendUserUpdate(result.rows)
 
 		return result.rows.map(row => new User(
 			row.id,

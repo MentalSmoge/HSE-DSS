@@ -18,7 +18,6 @@ export class WebSocketController {
 			socket.on("element-create", async (element: ElementDTO) => {
 				await this.elementService.createElement(element);
 				this.io.emit("element-created", element);
-				// Пример использования
 				sendBoardUpdate({
 					type: "ELEMENT_CREATED",
 					payload: element,
