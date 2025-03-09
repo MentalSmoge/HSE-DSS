@@ -1,5 +1,6 @@
 import { Pool } from "pg";
 import { User, UserRepository } from "../domain/user";
+import { sendUserUpdate } from "../kafka";
 
 export class PostgreSQLUserRepository implements UserRepository {
 	constructor(private pool: InstanceType<typeof Pool>) { }
@@ -17,6 +18,7 @@ export class PostgreSQLUserRepository implements UserRepository {
 			"INSERT INTO users(id, name, email) VALUES($1, $2, $3)",
 			[user.id, user.name, user.email]
 		);
+		sendUserUpdate(user)
 	}
 	async getUserById(id: string): Promise<User | null> {
 		const result = await this.pool.query(

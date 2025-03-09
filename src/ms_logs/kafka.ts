@@ -22,6 +22,11 @@ export async function startConsumer() {
 			fromBeginning: true,
 		});
 		console.log("Subscribed to topic: board-updates");
+		await consumer.subscribe({
+			topic: "users-updates",
+			fromBeginning: true,
+		});
+		console.log("Subscribed to topic: users-updates");
 
 		// Обработка сообщений
 		await consumer.run({
