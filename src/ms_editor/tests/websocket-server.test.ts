@@ -1,4 +1,4 @@
-import http from "http";
+import * as http from "http";
 import { io as ioc, type Socket as ClientSocket } from "socket.io-client";
 import { Server, type Socket as ServerSocket } from "socket.io";
 import { WebSocketController } from "../framework/websocket_controller";
@@ -25,7 +25,10 @@ describe("WebSocketController Integration Tests", () => {
         rethinkConnection = await r.connect({
             host: "localhost",
             port: 28015,
+            db: "test",
         });
+        console.log("SAS")
+        console.log(rethinkConnection)
 
         // Инициализация сервера и WebSocket
         const app = http.createServer();
