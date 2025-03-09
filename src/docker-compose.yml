@@ -12,7 +12,6 @@ services:
         build: ms_editor/
         depends_on:
             - rethink_db
-            - user_db
         ports:
             - "8082:8080"
         environment:
@@ -35,6 +34,23 @@ services:
             - editor_service
         volumes:
             - ./ms_logs:/app_backend
+        networks:
+            - app-network
+    user_service:
+        container_name: user_service
+        build: ms_users/
+        depends_on:
+            - user_db
+        ports:
+            - "8083:8080"
+        environment:
+            - DB_HOST=user_db
+            - DB_USER=${DB_USER}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - DB_NAME=${DB_NAME}
+            - DB_PORT=5432
+        volumes:
+            - ./ms_users:/app_backend
         networks:
             - app-network
 
@@ -82,7 +98,8 @@ services:
         networks:
             - app-network
     zookeeper:
-        image: confluentinc/cp-zookeeper:latest
+        container_name: zookeeper
+        image: zookeeper:latest
         environment:
             ZOOKEEPER_CLIENT_PORT: 2181
         ports:
@@ -91,7 +108,8 @@ services:
             - app-network
 
     kafka:
-        image: confluentinc/cp-kafka:latest
+        container_name: kafka
+        image: bitnami/kafka:latest
         hostname: kafka
         depends_on:
             - zookeeper
