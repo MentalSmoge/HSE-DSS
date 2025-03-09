@@ -7,7 +7,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 
 export class UserService {
-	constructor(private userRepository: UserRepository) {}
+	constructor(private userRepository: UserRepository) { }
 
 	// Создание пользователя
 	async createUser(command: CreateUserCommand): Promise<UserDTO> {
@@ -21,6 +21,12 @@ export class UserService {
 		const user = await this.userRepository.getUserById(userId);
 		return user ? this.toUserDTO(user) : null;
 	}
+	
+	// Получение всех пользователей
+    async getAllUsers(): Promise<UserDTO[]> {
+        const users = await this.userRepository.getAllUsers();
+        return users.map(user => this.toUserDTO(user));
+    }
 
 	// Обновление пользователя
 	async updateUser(

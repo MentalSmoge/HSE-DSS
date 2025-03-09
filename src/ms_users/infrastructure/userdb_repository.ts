@@ -2,7 +2,7 @@ import { Pool } from "pg";
 import { User, UserRepository } from "../domain/user";
 
 export class PostgreSQLUserRepository implements UserRepository {
-	constructor(private pool: InstanceType<typeof Pool>) {}
+	constructor(private pool: InstanceType<typeof Pool>) { }
 
 	async checkConnection(): Promise<void> {
 		try {
@@ -30,6 +30,17 @@ export class PostgreSQLUserRepository implements UserRepository {
 
 		const userData = result.rows[0];
 		return new User(userData.id, userData.name, userData.email);
+	}
+	async getAllUsers(): Promise<User[]> {
+		const result = await this.pool.query(
+			'SELECT id, name, email FROM users'
+		);
+
+		return result.rows.map(row => new User(
+			row.id,
+			row.name,
+			row.email
+		));
 	}
 	// Обновление пользователя
 	async updateUser(user: User): Promise<void> {
