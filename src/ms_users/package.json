@@ -4,6 +4,7 @@
 		"express": "^4.21.2",
 		"kafkajs": "^2.2.4",
 		"pg": "^8.13.3",
+		"ts-node": "^10.9.2",
 		"uuid": "^11.1.0"
 	},
 	"scripts": {
@@ -20,7 +21,6 @@
 		"eslint": "^9.21.0",
 		"globals": "^16.0.0",
 		"supertest": "^7.0.0",
-		"ts-node": "^10.9.2",
 		"typescript-eslint": "^8.25.0"
 	}
 }
