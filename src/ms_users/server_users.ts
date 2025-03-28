@@ -11,7 +11,7 @@ const port = process.env.USERS_PORT || 8080;
 const app = express();
 app.use(cors());
 app.use(express.json());
-//sas
+//sas3
 async function startUsersServer() {
 	// Инициализация PostgreSQL
 	const pool = createPool();
