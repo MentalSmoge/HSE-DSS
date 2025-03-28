@@ -10,6 +10,53 @@ jobs:
   lint-test-build:
     name: Lint, Test & Build (${{ matrix.service }})
     runs-on: ubuntu-latest
+    services:
+      rethinkdb:
+        image: rethinkdb:latest
+        ports:
+          - 28015:28015
+          - 8080:8080
+        options: >-
+          --health-cmd "echo 'db' | nc localhost 28015"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      zookeeper:
+        image: zookeeper:latest
+        ports:
+          - 2181:2181
+      kafka:
+        image: bitnami/kafka:latest
+        env:
+          KAFKA_ZOOKEEPER_CONNECT: localhost:2181
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        ports:
+          - 9092:9092
+        depends_on: zookeeper
+
     strategy:
       matrix:
         service: [
@@ -22,25 +69,38 @@ jobs:
           'ms_users'
         ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           
       - name: Install dependencies
         run: |
           cd src/${{ matrix.service }}
           npm ci
 
-      - name: Install dependencies2
+      - name: Install root dependencies
         run: |
           cd src
           npm ci
           
+      - name: Wait for services
+        run: |
+          # Wait for RethinkDB
+          while ! nc -z localhost 28015; do sleep 1; done
+          
+          # Wait for PostgreSQL
+          while ! pg_isready -h localhost -p 5432; do sleep 1; done
+          
+          # Wait for Redis
+          while ! redis-cli -h localhost ping | grep PONG; do sleep 1; done
+          
+          # Wait for Kafka
+          while ! nc -z localhost 9092; do sleep 1; done
+          
       - name: Run ESLint
-        if: ${{ always() }}
         run: |
           cd src
           npm run lint
@@ -62,10 +122,18 @@ jobs:
           
       - name: Run integration tests
         if: ${{ matrix.service == 'ms_editor' || matrix.service == 'ms_users' }}
+        env:
+          RETHINKDB_HOST: localhost
+          RETHINKDB_PORT: 28015
+          RETHINKDB_NAME: test
+          DB_HOST: localhost
+          DB_USER: testuser
+          DB_PASSWORD: testpass
+          DB_NAME: testdb
+          KAFKA_BROKER: localhost:9092
         run: |
           cd src/${{ matrix.service }}
           if [ -f "jest.config.js" ]; then
-            docker-compose -f ../../src/docker-compose.yml up -d kafka postgres redis
             npx jest integration --runInBand
           fi
           
@@ -74,4 +142,3 @@ jobs:
         run: |
           cd src/frontend
           npm run test:e2e
-          
