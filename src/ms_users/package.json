@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@types/jest": "^29.5.14",
 		"cors": "^2.8.5",
 		"express": "^4.21.2",
 		"kafkajs": "^2.2.4",
