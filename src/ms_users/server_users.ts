@@ -6,6 +6,7 @@ import {
 } from "./infrastructure/userdb_repository";
 import { UserService } from "./application/user_service";
 import { createUserRouter } from "./framework/routes";
+import { redisClient } from "./infrastructure/redis_client";
 
 const port = process.env.USERS_PORT || 8080;
 const app = express();
@@ -18,7 +19,7 @@ async function startUsersServer() {
 	const userRepository = new PostgreSQLUserRepository(pool);
 
 	// Сервисы
-	const userService = new UserService(userRepository);
+	const userService = new UserService(userRepository, redisClient);
 
 	app.use("/user", createUserRouter(userService));
 

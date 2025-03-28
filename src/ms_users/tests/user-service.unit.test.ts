@@ -2,10 +2,12 @@ import { UserService } from "../application/user_service";
 import { UserRepository } from "../domain/user";
 import { User } from "../domain/user";
 import { v4 as uuidv4 } from "uuid";
+import { IRedisClient } from "../infrastructure/redis_client_interface";
 
 describe("UserService", () => {
     let userService: UserService;
     let mockUserRepository: jest.Mocked<UserRepository>;
+    let mockRedisClient: jest.Mocked<IRedisClient>;
 
     beforeEach(() => {
         mockUserRepository = {
@@ -16,7 +18,14 @@ describe("UserService", () => {
             updateUser: jest.fn(),
             deleteUser: jest.fn(),
         };
-        userService = new UserService(mockUserRepository);
+        mockRedisClient = {
+            get: jest.fn(),
+            setEx: jest.fn(),
+            del: jest.fn(),
+            on: jest.fn(),
+            connect: jest.fn(),
+        };
+        userService = new UserService(mockUserRepository, mockRedisClient);
     });
 
     it("should create a user with a generated UUID", async () => {

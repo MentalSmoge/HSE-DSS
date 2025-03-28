@@ -63,6 +63,7 @@ services:
         networks:
             - app-network
     rethink_db:
+        container_name: rethink_db
         image: rethinkdb:latest
         ports:
             - "28015:28015"

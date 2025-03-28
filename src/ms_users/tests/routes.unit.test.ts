@@ -1,4 +1,4 @@
-import request from "supertest"; // Изменён импорт
+import request from "supertest";
 import express from "express";
 import { createUserRouter } from "../framework/routes";
 import { UserService } from "../application/user_service";
