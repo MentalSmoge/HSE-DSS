@@ -31,13 +31,13 @@ jobs:
           
       - name: Install dependencies
         run: |
-          cd ${{ matrix.service }}
+          cd src/${{ matrix.service }}
           npm ci
           
       - name: Run ESLint
         if: ${{ always() }}
         run: |
-          cd ${{ matrix.service }}
+          cd src/${{ matrix.service }}
           if [ -f ".eslintrc.json" ] || [ -f "eslint.config.mjs" ]; then
             npx eslint .
           fi
@@ -45,14 +45,14 @@ jobs:
       - name: Run TypeScript check
         if: ${{ matrix.service != 'frontend' && matrix.service != 'ms_logs' }}
         run: |
-          cd ${{ matrix.service }}
+          cd src/${{ matrix.service }}
           if [ -f "tsconfig.json" ]; then
             npx tsc --noEmit
           fi
           
       - name: Run unit tests
         run: |
-          cd ${{ matrix.service }}
+          cd src/${{ matrix.service }}
           if [ -f "jest.config.js" ]; then
             npx jest --coverage --runInBand
           fi
@@ -60,7 +60,7 @@ jobs:
       - name: Run integration tests
         if: ${{ matrix.service == 'ms_editor' || matrix.service == 'ms_users' }}
         run: |
-          cd ${{ matrix.service }}
+          cd src/${{ matrix.service }}
           if [ -f "jest.config.js" ]; then
             docker-compose -f ../../src/docker-compose.yml up -d kafka postgres redis
             npx jest integration --runInBand
@@ -69,6 +69,6 @@ jobs:
       - name: Run E2E tests (frontend)
         if: ${{ matrix.service == 'frontend' }}
         run: |
-          cd frontend
+          cd src/frontend
           npm run test:e2e
           
