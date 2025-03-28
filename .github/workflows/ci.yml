@@ -32,12 +32,12 @@ jobs:
       - name: Install dependencies
         run: |
           cd src/${{ matrix.service }}
-          npm ci
+          npm install
 
       - name: Install dependencies2
         run: |
           cd src
-          npm ci
+          npm install
           
       - name: Run ESLint
         if: ${{ always() }}
