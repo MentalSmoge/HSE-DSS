@@ -56,12 +56,12 @@ jobs:
       - name: Run unit tests
         run: |
           cd src
-            npm run unit-test
+            npm run test:unit
           
       - name: Run integration tests
         run: |
           cd src
             docker-compose -f ../../src/docker-compose.yml up -d kafka postgres redis rethink_db
-            npm run int-test
+            npm run test:int
           
           
