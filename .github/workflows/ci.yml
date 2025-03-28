@@ -1,0 +1,81 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+
+jobs:
+  lint-test-build:
+    name: Lint, Test & Build (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [
+          'frontend',
+          'ms_auth',
+          'ms_api',
+          'ms_editor',
+          'ms_logs',
+          'ms_notification',
+          'ms_users'
+        ]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: |
+          cd ${{ matrix.service }}
+          npm ci
+          
+      - name: Run ESLint
+        if: ${{ always() }}
+        run: |
+          cd ${{ matrix.service }}
+          if [ -f ".eslintrc.json" ] || [ -f "eslint.config.mjs" ]; then
+            npx eslint .
+          fi
+          
+      - name: Run TypeScript check
+        if: ${{ matrix.service != 'frontend' && matrix.service != 'ms_logs' }}
+        run: |
+          cd ${{ matrix.service }}
+          if [ -f "tsconfig.json" ]; then
+            npx tsc --noEmit
+          fi
+          
+      - name: Run unit tests
+        run: |
+          cd ${{ matrix.service }}
+          if [ -f "jest.config.js" ]; then
+            npx jest --coverage --runInBand
+          fi
+          
+      - name: Run integration tests
+        if: ${{ matrix.service == 'ms_editor' || matrix.service == 'ms_users' }}
+        run: |
+          cd ${{ matrix.service }}
+          if [ -f "jest.config.js" ]; then
+            docker-compose -f ../../src/docker-compose.yml up -d kafka postgres redis
+            npx jest integration --runInBand
+          fi
+          
+      - name: Run E2E tests (frontend)
+        if: ${{ matrix.service == 'frontend' }}
+        run: |
+          cd frontend
+          npm run test:e2e
+          
+      - name: Upload coverage report
+        if: ${{ success() || failure() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.service }}-coverage-report
+          path: ${{ matrix.service }}/coverage
+          
