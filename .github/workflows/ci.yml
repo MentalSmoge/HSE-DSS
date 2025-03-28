@@ -72,10 +72,3 @@ jobs:
           cd frontend
           npm run test:e2e
           
-      - name: Upload coverage report
-        if: ${{ success() || failure() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.service }}-coverage-report
-          path: ${{ matrix.service }}/coverage
-          
