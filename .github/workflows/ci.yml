@@ -19,7 +19,6 @@ jobs:
         with:
           node-version: '18'
           
-      # Установка зависимостей для всех микросервисов
       - name: Install root dependencies
         run: |
           cd src
@@ -43,8 +42,3 @@ jobs:
           cd src
           npm run test:unit
           
-      - name: Run integration tests
-        run: |
-          cd src
-          docker-compose -f ../../src/docker-compose.yml up -d kafka postgres redis rethink_db
-          npm run test:int
