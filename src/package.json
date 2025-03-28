@@ -10,8 +10,8 @@
     "typescript-eslint": "^8.26.0"
   },
   "scripts": {
-    "test:unit": "test users-unit editor-unit",
-    "test:int": "test users-integration editor-integration",
+    "test:unit": "jest --selectProjects users-unit editor-unit",
+    "test:int": "jest --selectProjects users-integration editor-integration",
     "lint": "npx eslint .",
     "lint:fix": "npx eslint . --fix"
   }
