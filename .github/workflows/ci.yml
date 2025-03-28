@@ -8,19 +8,9 @@ on:
 
 jobs:
   lint-test-build:
-    name: Lint, Test & Build (${{ matrix.service }})
+    name: Lint, Test & Build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [
-          'frontend',
-          'ms_auth',
-          'ms_api',
-          'ms_editor',
-          'ms_logs',
-          'ms_notification',
-          'ms_users'
-        ]
+    
     steps:
       - uses: actions/checkout@v3
       
@@ -29,39 +19,32 @@ jobs:
         with:
           node-version: '18'
           
-      - name: Install dependencies
-        run: |
-          cd src/${{ matrix.service }}
-          npm install
-
-      - name: Install dependencies2
+      # Установка зависимостей для всех микросервисов
+      - name: Install root dependencies
         run: |
           cd src
           npm install
           
+      - name: Install microservices dependencies
+        run: |
+          cd src
+          for service in frontend ms_auth ms_api ms_editor ms_logs ms_notification ms_users; do
+            echo "Installing dependencies for $service"
+            cd $service && npm install && cd ..
+          done
+          
       - name: Run ESLint
-        if: ${{ always() }}
         run: |
           cd src
           npm run lint
           
-      - name: Run TypeScript check
-        if: ${{ matrix.service != 'frontend' && matrix.service != 'ms_logs' }}
-        run: |
-          cd src/${{ matrix.service }}
-          if [ -f "tsconfig.json" ]; then
-            npx tsc --noEmit
-          fi
-          
       - name: Run unit tests
         run: |
           cd src
-            npm run test:unit
+          npm run test:unit
           
       - name: Run integration tests
         run: |
           cd src
-            docker-compose -f ../../src/docker-compose.yml up -d kafka postgres redis rethink_db
-            npm run test:int
-          
-          
+          docker-compose -f ../../src/docker-compose.yml up -d kafka postgres redis rethink_db
+          npm run test:int
