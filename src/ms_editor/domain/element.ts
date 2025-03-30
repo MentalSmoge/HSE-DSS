@@ -1,5 +1,7 @@
 export interface Element {
     id: string;
+    type: string;
+    boardId: string;
 }
 export interface ElementRepository {
     initialize(): Promise<void>;

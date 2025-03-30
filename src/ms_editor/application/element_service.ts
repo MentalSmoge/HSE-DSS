@@ -13,6 +13,10 @@ export class ElementService {
     getElements(): Element[] {
         return this.elements;
     }
+    async getElementsByBoard(boardId: string): Promise<Element[]> {
+        const existingElements = this.elements.filter((el) => el.boardId === boardId);
+        return existingElements;
+    }
 
     async createElement(element: Element): Promise<void> {
         this.elements.push(element);
@@ -40,4 +44,6 @@ export class ElementService {
 
 export interface ElementDTO {
     id: string;
+    type: string;
+    boardId: string;
 }

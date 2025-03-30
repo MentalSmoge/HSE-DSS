@@ -26,7 +26,7 @@ function App() {
 
 				<Routes>
 					<Route path="/" element={<Navigate to="/board" />} />
-					<Route path="/board" element={<Board />} />
+					<Route path="/board/:boardId" element={<Board />} />
 					<Route path="/user" element={<Users />} />
 				</Routes>
 			</div>

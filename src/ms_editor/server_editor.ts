@@ -6,6 +6,8 @@ import * as r from "rethinkdb";
 import { RethinkDBElementRepository } from "./infrastructure/elements_repository";
 import { ElementService } from "./application/element_service";
 import { WebSocketController } from "./framework/websocket_controller";
+import { RethinkDBBoardRepository } from "./infrastructure/boards_repository";
+import { BoardService } from "./application/board_service";
 
 const port = process.env.EDITOR_PORT || 8080;
 const app = express();
@@ -26,15 +28,18 @@ async function startEditorServer() {
 
 	// Репозитории
 	const elementRepository = new RethinkDBElementRepository(rethinkConnection);
+	const boardRepository = new RethinkDBBoardRepository(rethinkConnection);
 
 	// Сервисы
 	const elementService = new ElementService(elementRepository);
+	const boardService = new BoardService(boardRepository);
 
 	// Инициализация сервисов
 	await elementService.initialize();
+	await boardService.initialize();
 
 	// WebSocket
-	new WebSocketController(io, elementService);
+	new WebSocketController(io, elementService, boardService);
 
 	// Запуск сервера
 	server.listen(port, () =>

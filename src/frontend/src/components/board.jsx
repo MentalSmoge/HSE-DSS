@@ -1,11 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { Stage, Layer, Text, Rect } from "react-konva";
 import { socket } from "../socket";
+import { useParams } from "react-router-dom"; // Добавляем для получения boardId из URL
 
 export function Board() {
+	const { boardId } = useParams(); // Получаем ID доски из URL
 	const [elements, setElements] = useState([]);
+	const [isConnected, setIsConnected] = useState(false);
 
 	useEffect(() => {
+		// Обработчик успешного подключения
+		const onConnect = () => {
+			setIsConnected(true);
+			// При подключении присоединяемся к конкретной доске
+			socket.emit("join-board", boardId);
+		};
+		const onDisconnect = () => {
+			setIsConnected(false);
+		};
+		socket.on("connect", onConnect);
+		socket.on("disconnect", onDisconnect);
+		if (!isConnected) {
+			socket.connect();
+		}
 		const handleBoardState = (serverElements) => {
 			setElements(serverElements);
 		};
@@ -33,28 +50,37 @@ export function Board() {
 		socket.on("element-deleted", handleElementDeleted);
 
 		return () => {
+			// Отписываемся от всех событий при размонтировании
+			socket.off("connect", onConnect);
+			socket.off("disconnect", onDisconnect);
 			socket.off("board-state", handleBoardState);
 			socket.off("element-created", handleElementCreated);
 			socket.off("element-updated", handleElementUpdated);
 			socket.off("element-deleted", handleElementDeleted);
+
+			// При размонтировании можно отключиться от доски
+			socket.emit("leave-board", boardId);
 		};
-	}, []);
+	}, [boardId]);
 
 	const handleCreateElement = (element) => {
-		socket.emit("element-create", element);
+		console.log(isConnected)
+		console.log(element)
+		socket.emit("element-create", { boardId, element });
 	};
 
 	const handleUpdateElement = (element) => {
-		socket.emit("element-update", element);
+		socket.emit("element-update", { boardId, element });
 	};
 
 	const handleDeleteElement = (elementId) => {
-		socket.emit("element-delete", elementId);
+		socket.emit("element-delete", { boardId, elementId });
 	};
 
 	const addRectangle = () => {
 		const newElement = {
 			id: Date.now().toString(),
+			boardId: boardId,
 			type: "rect",
 			x: 100,
 			y: 100,
@@ -75,6 +101,7 @@ export function Board() {
 	const paintRectangle = (element) => {
 		const updatedElement = {
 			id: element.id,
+			boardId: boardId,
 			type: "rect",
 			x: element.x,
 			y: element.y,
@@ -127,6 +154,7 @@ export function Board() {
 
 	return (
 		<div>
+			<div>Current Board: {boardId}</div>
 			<button onClick={addRectangle}>Add Rectangle</button>
 			<button onClick={() => deleteRectangle(elements[0]?.id)}>
 				Delete Rectangle

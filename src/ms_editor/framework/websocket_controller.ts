@@ -1,39 +1,53 @@
 import { Server, Socket } from "socket.io";
 import { sendBoardUpdate } from "../kafka";
 import { ElementService, ElementDTO } from "../application/element_service";
+import { BoardService } from "../application/board_service";
 
 export class WebSocketController {
-	constructor(private io: Server, private elementService: ElementService) {
+	constructor(
+		private io: Server,
+		private elementService: ElementService,
+		private boardService: BoardService
+	) {
 		this.setupHandlers();
 	}
 
 	private setupHandlers(): void {
 		this.io.on("connection", (socket: Socket) => {
 			console.log("User connected:", socket.id);
+			socket.on("join-board", async (boardId: string) => {
+				socket.join(boardId);
+				console.log(`User ${socket.id} joined board ${boardId}`);
 
-			// Отправка текущего состояния
-			socket.emit("board-state", this.elementService.getElements());
+				// Отправка текущего состояния доски
+				const elements = await this.elementService.getElementsByBoard(boardId);
+				socket.emit("board-state", elements);
+			});
 
-			// Создание элемента
-			socket.on("element-create", async (element: ElementDTO) => {
+			// Создание элемента на доске
+			socket.on("element-create", async (data: { boardId: string; element: ElementDTO }) => {
+				const { boardId, element } = data;
 				await this.elementService.createElement(element);
-				this.io.emit("element-created", element);
+				// Отправка только участникам этой доски
+				this.io.to(boardId).emit("element-created", element);
 				sendBoardUpdate({
 					type: "ELEMENT_CREATED",
 					payload: element,
 				});
 			});
 
-			// Обновление элемента
-			socket.on("element-update", async (element: ElementDTO) => {
+			// Обновление элемента на доске
+			socket.on("element-update", async (data: { boardId: string; element: ElementDTO }) => {
+				const { boardId, element } = data;
 				await this.elementService.updateElement(element);
-				this.io.emit("element-updated", element);
+				this.io.to(boardId).emit("element-updated", element);
 			});
 
-			// Удаление элемента
-			socket.on("element-delete", async (elementId: string) => {
+			// Удаление элемента с доски
+			socket.on("element-delete", async (data: { boardId: string; elementId: string }) => {
+				const { boardId, elementId } = data;
 				await this.elementService.deleteElement(elementId);
-				this.io.emit("element-deleted", elementId);
+				this.io.to(boardId).emit("element-deleted", elementId);
 			});
 
 			socket.on("disconnect", () => {
