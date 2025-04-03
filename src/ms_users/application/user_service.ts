@@ -3,6 +3,8 @@ import {
 	CreateUserCommand,
 	User,
 	UpdateUserCommand,
+	UserDTO,
+	toUserDTO
 } from "../domain/user";
 import { IRedisClient } from "../infrastructure/redis_client_interface";
 import { v4 as uuidv4 } from "uuid";
@@ -15,10 +17,10 @@ export class UserService {
 
 	// Создание пользователя
 	async createUser(command: CreateUserCommand): Promise<UserDTO> {
-		const user = new User(uuidv4(), command.name, command.email);
+		const user = new User(uuidv4(), command.name, command.email, command.password);
 		await this.redisClient.del("users:all");
 		await this.userRepository.addUser(user);
-		return this.toUserDTO(user);
+		return toUserDTO(user);
 	}
 
 	// Получение пользователя по ID
@@ -33,7 +35,7 @@ export class UserService {
 		if (!user) return null;
 
 		await this.redisClient.setEx(cacheKey, 300, JSON.stringify(user));
-		return this.toUserDTO(user);
+		return user;
 	}
 
 	// Получение всех пользователей
@@ -45,8 +47,8 @@ export class UserService {
 			return JSON.parse(cachedUsers);
 		}
 		const users = await this.userRepository.getAllUsers();
-		await this.redisClient.setEx(cacheKey, 300, JSON.stringify(users.map(user => this.toUserDTO(user))));
-		return users.map(user => this.toUserDTO(user));
+		await this.redisClient.setEx(cacheKey, 300, JSON.stringify(users.map(user => user)));
+		return users.map(user => user);
 	}
 
 	// Обновление пользователя
@@ -54,18 +56,18 @@ export class UserService {
 		userId: string,
 		command: UpdateUserCommand
 	): Promise<UserDTO | null> {
-		const user = await this.userRepository.getUserById(userId);
+		const user = await this.userRepository.getUserByIdAuth(userId);
 		if (!user) {
 			return null;
 		}
 
 		user.name = command.name;
 		user.email = command.email;
-		await this.userRepository.updateUser(user);
+		await this.userRepository.updateUserAuth(user);
 		await this.redisClient.del(`user:${userId}`);
 		await this.redisClient.del("users:all");
 
-		return this.toUserDTO(user);
+		return toUserDTO(user);
 	}
 
 	// Удаление пользователя
@@ -73,18 +75,5 @@ export class UserService {
 		return this.userRepository.deleteUser(userId);
 	}
 
-	// Преобразование User в UserDTO
-	private toUserDTO(user: User): UserDTO {
-		return {
-			id: user.id,
-			name: user.name,
-			email: user.email,
-		};
-	}
-}
 
-export interface UserDTO {
-	id: string;
-	name: string;
-	email: string;
 }

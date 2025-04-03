@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-import { User, UserRepository } from "../domain/user";
+import { User, UserRepository, UserDTO, toUserDTO } from "../domain/user";
 import { sendUserUpdate } from "../kafka";
 
 export class PostgreSQLUserRepository implements UserRepository {
@@ -20,7 +20,7 @@ export class PostgreSQLUserRepository implements UserRepository {
 		);
 		sendUserUpdate(user)
 	}
-	async getUserById(id: string): Promise<User | null> {
+	async getUserById(id: string): Promise<UserDTO | null> {
 		const result = await this.pool.query(
 			"SELECT id, name, email FROM users WHERE id = $1",
 			[id]
@@ -31,25 +31,66 @@ export class PostgreSQLUserRepository implements UserRepository {
 		}
 
 		const userData = result.rows[0];
-		return new User(userData.id, userData.name, userData.email);
+		return toUserDTO(userData);
 	}
-	async getAllUsers(): Promise<User[]> {
+	async getUserByIdAuth(id: string): Promise<User | null> {
+		const result = await this.pool.query(
+			"SELECT id, name, email FROM users WHERE id = $1",
+			[id]
+		);
+
+		if (result.rows.length === 0) {
+			return null;
+		}
+
+		const userData = result.rows[0];
+		return new User(userData.id, userData.name, userData.email, userData.password);
+	}
+	async getUserByName(name: string): Promise<UserDTO | null> {
+		const result = await this.pool.query(
+			"SELECT id, name, email FROM users WHERE name = $1",
+			[name]
+		);
+
+		if (result.rows.length === 0) {
+			return null;
+		}
+
+		const userData = result.rows[0];
+		return toUserDTO(userData);
+	}
+	async getUserByNameAuth(name: string): Promise<User | null> {
+		const result = await this.pool.query(
+			"SELECT id, name, email FROM users WHERE name = $1",
+			[name]
+		);
+
+		if (result.rows.length === 0) {
+			return null;
+		}
+
+		const userData = result.rows[0];
+		return new User(userData.id, userData.name, userData.email, userData.password);
+	}
+	async getAllUsers(): Promise<UserDTO[]> {
 		const result = await this.pool.query(
 			'SELECT id, name, email FROM users'
 		);
 		sendUserUpdate(result.rows)
 
-		return result.rows.map(row => new User(
-			row.id,
-			row.name,
-			row.email
-		));
+		return result.rows.map(row => toUserDTO(row));
 	}
 	// Обновление пользователя
-	async updateUser(user: User): Promise<void> {
+	async updateUser(user: UserDTO): Promise<void> {
 		await this.pool.query(
 			"UPDATE users SET name = $1, email = $2 WHERE id = $3",
 			[user.name, user.email, user.id]
+		);
+	}
+	async updateUserAuth(user: User): Promise<void> {
+		await this.pool.query(
+			"UPDATE users SET name = $1, email = $2, password = $3 WHERE id = $4",
+			[user.name, user.email, user.password, user.id]
 		);
 	}
 	// Удаление пользователя
