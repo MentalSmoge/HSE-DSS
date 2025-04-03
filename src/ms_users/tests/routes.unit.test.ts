@@ -21,7 +21,6 @@ describe("User Routes", () => {
 		app.use("/user", createUserRouter(mockUserService));
 	});
 
-	// Все тесты остаются без изменений
 	it("should create a user", async () => {
 		const user = { id: "1", name: "John Doe", email: "john@example.com" };
 		mockUserService.createUser.mockResolvedValue(user);
@@ -33,6 +32,4 @@ describe("User Routes", () => {
 		expect(response.status).toBe(201);
 		expect(response.body).toEqual(user);
 	});
-
-	// ... остальные тесты
 });

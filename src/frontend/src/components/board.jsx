@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Stage, Layer, Text, Rect } from "react-konva";
 import { socket } from "../socket";
-import { useParams } from "react-router-dom"; // Добавляем для получения boardId из URL
+import { useParams } from "react-router-dom";
+
 
 export function Board() {
 	const { boardId } = useParams(); // Получаем ID доски из URL
@@ -9,10 +10,8 @@ export function Board() {
 	const [isConnected, setIsConnected] = useState(false);
 
 	useEffect(() => {
-		// Обработчик успешного подключения
 		const onConnect = () => {
 			setIsConnected(true);
-			// При подключении присоединяемся к конкретной доске
 			socket.emit("join-board", boardId);
 		};
 		const onDisconnect = () => {
@@ -57,8 +56,6 @@ export function Board() {
 			socket.off("element-created", handleElementCreated);
 			socket.off("element-updated", handleElementUpdated);
 			socket.off("element-deleted", handleElementDeleted);
-
-			// При размонтировании можно отключиться от доски
 			socket.emit("leave-board", boardId);
 		};
 	}, [boardId]);
@@ -171,7 +168,7 @@ export function Board() {
 			<button onClick={() => printDebugElements()}>
 				Debug all Elements
 			</button>
-			<Stage width={window.innerWidth} height={window.innerHeight}>
+			<Stage width={window.innerWidth} height={window.innerHeight} draggable={true}>
 				<Layer>
 					{elements.map((element) =>
 						element.type === "text" ? (
