@@ -1,0 +1,17 @@
+{
+	"dependencies": {
+		"amqplib": "^0.10.5",
+		"cors": "^2.8.5",
+		"express": "^4.21.2",
+		"kafkajs": "^2.2.4",
+		"ts-node": "^10.9.2"
+	},
+	"scripts": {
+		"build": "tsc",
+		"start": "ts-node ./server_auth.ts"
+	},
+	"devDependencies": {
+		"@types/kafkajs": "^1.8.2",
+		"typescript": "^5.8.2"
+	}
+}
