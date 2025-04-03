@@ -12,7 +12,7 @@
 	},
 	"scripts": {
 		"build": "tsc",
-		"start": "ts-node ./server_auth.ts"
+		"start": "ts-node ./server_gateway.ts"
 	},
 	"devDependencies": {
 		"@types/cors": "^2.8.17",
