@@ -115,7 +115,6 @@ services:
             - "2181:2181"
         networks:
             - app-network
-
     kafka:
         container_name: kafka
         image: bitnami/kafka:latest
