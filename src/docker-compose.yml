@@ -7,6 +7,15 @@ services:
         depends_on:
             - editor_service
             - rethink_db
+    nginx:
+        build: ./nginx
+        ports:
+            - "80:80"
+        depends_on:
+            - editor_service
+            - user_service
+        volumes:
+            - ./frontend/build:/usr/share/nginx/html
     gateway_service:
         container_name: gateway_service
         build: ./ms_gateway
