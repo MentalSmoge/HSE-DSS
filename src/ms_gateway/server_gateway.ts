@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Маршруты
-app.use('/api', router);
+app.use('/', router);
 
 // Обработка ошибок
 app.use((err: any, req: any, res: any, next: any) => {

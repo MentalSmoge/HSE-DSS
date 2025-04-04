@@ -4,7 +4,7 @@ function Users() {
 	const [users, setUsers] = useState([]);
 
 	useEffect(() => {
-		fetch("http://localhost:8083/user/users")
+		fetch("http://localhost:8084/user/users")
 			.then((response) => response.json())
 			.then((data) => setUsers(data))
 			.catch((error) => console.error("Error fetching users:", error));
