@@ -21,7 +21,7 @@ async function startUsersServer() {
 	// Сервисы
 	const userService = new UserService(userRepository, redisClient);
 
-	app.use("/user", createUserRouter(userService));
+	app.use("/", createUserRouter(userService));
 
 	// Запуск сервера
 	app.listen(port, () => console.log(`Users server running on port ${port}`));

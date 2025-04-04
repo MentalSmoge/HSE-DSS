@@ -7,12 +7,12 @@ export const config = {
     JWT_SECRET: process.env.JWT_SECRET || 'secret',
     SERVICES: {
         AUTH: process.env.AUTH_SERVICE_URL || 'http://localhost:3001',
-        USERS: process.env.USERS_SERVICE_URL || 'http://localhost:8083/user',
+        USERS: process.env.USERS_SERVICE_URL || 'http://localhost:8083',
         EDITOR: process.env.EDITOR_SERVICE_URL || 'http://localhost:8082',
         LOGS: process.env.LOGS_SERVICE_URL || 'http://localhost:3006'
     },
     PUBLIC_ROUTES: [
-        '/user',
+        '/',
         '/auth/login',
         '/auth/register',
         '/healthcheck'
